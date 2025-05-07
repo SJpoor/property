@@ -35,6 +35,16 @@ export function updateRecord(data) {
   })
 }
 
+// 获取当前车位活动id记录
+export function getActiveRecordByParkingSpace(parkingSpaceId) {
+  return request({
+    url: '/smart/park/space/record/active',
+    method: 'get',
+    params: { parkingSpaceId }
+  })
+}
+
+
 
 // 删除车位使用信息
 export function delRecord(parkingRecordId) {

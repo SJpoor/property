@@ -207,10 +207,11 @@
           </el-select>
         </el-form-item>
         <el-form-item label="车位" prop="parkingSpaceId" v-if="1==2">
-           <el-select v-model="outForm.parkingSpaceId" placeholder="请选择车位" filterable clearable style="width: 100%">
+          <el-select v-model="outForm.parkingSpaceId" placeholder="请选择车位" filterable clearable style="width: 100%">
             <el-option v-for="dict in parkingSpaceList" :key="dict.parkingSpaceId" :label="dict.parkingSpaceNo" :value="dict.parkingSpaceId" />
           </el-select>
         </el-form-item>
+
         <el-form-item label="车牌照" >
           <imageUpload ref="imageUpload" @handleAfter="handleAfter"/>
         </el-form-item>
@@ -232,7 +233,7 @@
 <script>
 import { listParkingSpace, getParkingSpace, delParkingSpace, addParkingSpace, updateParkingSpace,changeStatus } from "@/api/smart/parkingSpace";
 import { listLot } from "@/api/smart/parkingLot";
-import { addRecord, updateRecord } from "@/api/smart/parkingSpaceRecord";
+import {addRecord, getActiveRecordByParkingSpace, updateRecord} from "@/api/smart/parkingSpaceRecord";
 import { listUser } from "@/api/system/user";
 import imageUpload from "@/components/ImageUpload/index"
 export default {
@@ -487,27 +488,47 @@ export default {
       this.title = "驶入信息";
       this.inForm.parkingSpaceId = row.parkingSpaceId
     },
+    //识别后处理
     handleAfter(res){
       let attrText = res.attrText || ''
       this.inForm.plateNo = attrText
       this.outForm.plateNo = attrText
     },
+
+    //驶出按钮逻辑修改，与车位使用管理的驶出逻辑不同
     handleOut(row){
-      /* this.$modal.confirm('确认要驶出吗？').then(function() {
-        return updateRecordByParkingSpaceId(row.parkingSpaceId);
-      }).then(() => {
-        this.$modal.msgSuccess("驶出成功");
-        this.getList()
-      }).catch(function() {
-      }); */
       this.resetOutForm();
-      this.outOpen = true;
+      this.loading = true;
       this.title = "驶出信息";
-      this.outForm.parkingSpaceId = row.parkingSpaceId
-    },
+      this.outForm.parkingSpaceId = row.parkingSpaceId;
+
+      // 获取该车位的当前使用记录
+      getActiveRecordByParkingSpace(row.parkingSpaceId).then(response => {
+        if (response.code === 200 && response.data) {
+          // 存储记录信息：车位使用记录id，业主id，车牌id
+          this.outForm.parkingRecordId = response.data.parkingRecordId;
+          this.outForm.expectedOwnerId = response.data.ownerId;
+          this.outForm.expectedPlateNo = response.data.plateNo;
+
+          // 测试：确保获取使车位使用记录
+          const ownerName = this.userList.find(u => u.userId === response.data.ownerId)?.userName || '未知';
+          this.$message.info(`当前车位使用信息: 车主 ${ownerName}, 车牌号 ${response.data.plateNo}`);
+
+          this.outOpen = true;//驶出对话框显示状态打开
+        } else {
+          this.$modal.msgError("未找到该车位的使用记录");
+        }
+        this.loading = false;
+      }).catch(error => {
+        this.$modal.msgError("获取车位使用记录失败: " + (error.message || "未知错误"));
+        this.loading = false;
+      });
+    }
+    ,
     /** 提交按钮 */
     submitInForm() {
       this.$nextTick(()=>{
+        //从上传组件中得到回调结果
         let fileList = this.$refs.imageUpload.fileList || []
         console.info("fileList===>>",fileList)
         if(fileList.length <= 0){
@@ -536,36 +557,67 @@ export default {
         });
       })
     },
-    /** 提交按钮 */
+    /** 提交驶出表单 */
     submitOutForm() {
-      this.$nextTick(()=>{
-        let fileList = this.$refs.imageUpload.fileList || []
-        console.info("fileList===>>",fileList)
-        if(fileList.length <= 0){
+      this.$nextTick(() => {
+        let fileList = this.$refs.imageUpload.fileList || [];
+
+        if (fileList.length <= 0) {
           this.$modal.msgError("请上传车牌照");
           return;
         }
+
         this.$refs["outForm"].validate(valid => {
           if (valid) {
-              /* let fileList = this.$refs.imageUpload.fileList
-              let file = fileList[0]
-              console.info("fileList===<<<",fileList)
-              let attr = {
-                attrId: file.id,
-                attrName: file.name,
-                attrUrl: file.url,
-                attrText: file.attrText
-              }
-              this.inForm.attr = attr */
-              updateRecord(this.outForm).then(response => {
-                this.$modal.msgSuccess("操作成功");
-                this.outOpen = false;
-                this.getList();
+            // 获取车牌识别结果
+            let file = fileList[0];
+            let recognizedPlateNo = file.attrText || '';
+
+            // 验证车牌号是否匹配
+            if (this.outForm.expectedPlateNo &&
+              recognizedPlateNo !== this.outForm.expectedPlateNo) {
+              this.$modal.msgError(`车牌号不匹配！当前记录的车牌号为: ${this.outForm.expectedPlateNo}`);
+              return;
+            }
+
+            // 验证车主是否匹配（如果是管理员）
+            if (this.roles.includes('admin') &&
+              this.outForm.expectedOwnerId &&
+              this.outForm.ownerId !== this.outForm.expectedOwnerId) {
+              const expectedOwner = this.userList.find(u => u.userId === this.outForm.expectedOwnerId)?.userName || '未知';
+              this.$modal.msgError(`车辆所有人不匹配！当前记录的车辆所有人为: ${expectedOwner}`);
+              return;
+            }
+
+            // 构建更新数据
+            const updateData = {
+              parkingRecordId: this.outForm.parkingRecordId,  // 使用记录ID进行精确操作
+              parkingSpaceId: this.outForm.parkingSpaceId,
+              plateNo: recognizedPlateNo,
+              ownerId: this.outForm.ownerId,
+              driveStatus: '0'  // 设置为驶出状态
+            };
+
+            // 发送更新请求
+            updateRecord(updateData)
+              .then(response => {
+                if (response.code === 200) {
+                  this.$modal.msgSuccess("驶出成功");
+                  this.outOpen = false;
+                  this.getList();
+                } else {
+                  this.$modal.msgError(response.msg || "驶出失败");
+                }
+              })
+              .catch(error => {
+                this.$modal.msgError("驶出失败: " + (error.message || "未知错误"));
+                console.error("驶出失败:", error);
               });
           }
         });
-      })
+      });
     }
+
   }
 };
 </script>

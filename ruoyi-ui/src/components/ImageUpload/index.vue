@@ -158,7 +158,7 @@ export default {
     handleExceed() {
       this.$modal.msgError(`上传文件数量不能超过 ${this.limit} 个!`);
     },
-    // 上传成功回调
+    // 上传成功回调（车牌）
     handleUploadSuccess(res, file) {
       console.info("11res===",res)
       if (res.code === 200) {

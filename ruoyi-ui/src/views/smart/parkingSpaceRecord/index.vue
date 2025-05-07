@@ -448,9 +448,10 @@ export default {
         this.getList(); // 刷新列表数据
       }).catch(error => {
         console.error("更新失败:", error);
-        this.$modal.msgError("驶出失败，请检查控制台日志");
+        // this.$modal.msgError("驶出失败，请检查控制台日志");
       });
     }
+
     ,
     // 时间
     formatDateTime(date) {
