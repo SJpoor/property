@@ -138,7 +138,7 @@
     />
 
     <!-- 添加或修改车位信息对话框 -->
-    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body>
+    <el-dialog :title="title" :visible.sync="open" width="500px" append-to-body @close="cancel">
       <el-form ref="form" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="停车场" prop="parkingLotId">
           <el-select v-model="form.parkingLotId" placeholder="请选择停车场" filterable clearable style="width: 100%">
@@ -171,7 +171,7 @@
       </div>
     </el-dialog>
 
-    <el-dialog :title="title" :visible.sync="inOpen" width="700px" append-to-body>
+    <el-dialog :title="title" :visible.sync="inOpen" width="700px" append-to-body @close="cancel">
       <el-form ref="inForm" :model="inForm" :rules="inRules" label-width="110px">
         <el-form-item label="车辆所有人" prop="ownerId" v-if="roles.includes('admin')">
           <el-select v-model="inForm.ownerId" placeholder="请选择车辆所有人" filterable  clearable style="width: 100%">
@@ -199,7 +199,7 @@
       </div>
     </el-dialog>
 
-    <el-dialog :title="title" :visible.sync="outOpen" width="700px" append-to-body>
+    <el-dialog :title="title" :visible.sync="outOpen" width="700px" append-to-body @close="cancel">
       <el-form ref="outForm" :model="outForm" :rules="inRules" label-width="110px">
         <el-form-item label="车辆所有人" prop="ownerId" v-if="roles.includes('admin')">
           <el-select v-model="outForm.ownerId" placeholder="请选择车辆所有人" filterable  clearable style="width: 100%">
@@ -341,7 +341,11 @@ export default {
     // 取消按钮
     cancel() {
       this.open = false;
+      this.inOpen = false;
+      this.outOpen = false;
       this.reset();
+      this.resetInForm();
+      this.resetOutForm();
     },
     // 表单重置
     reset() {
