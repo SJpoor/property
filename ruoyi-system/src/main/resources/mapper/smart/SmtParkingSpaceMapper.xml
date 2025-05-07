@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.smart.mapper.SmtParkingSpaceMapper">
+    
+    <resultMap type="SmtParkingSpace" id="SmtParkingSpaceResult">
+        <result property="parkingSpaceId"    column="parking_space_id"    />
+        <result property="parkingSpaceNo"    column="parking_space_no"    />
+        <result property="parkingSpaceStatus"    column="parking_space_status"    />
+        <result property="parkingSpaceType"    column="parking_space_type"    />
+        <result property="parkingLotId"    column="parking_lot_id"    />
+        <result property="orderNum"    column="order_num"    />
+        <result property="useCount"    column="use_count"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <!-- 嵌套映射 Building -->
+        <association property="parkingLot" javaType="SmtParkingLot">
+            <result property="parkingLotId"    column="parking_lot_id"    />
+            <result property="parkingLotName"    column="parking_lot_name"    />
+            <result property="parkingLotType"    column="parking_lot_type"    />
+            <result property="totalSpace"    column="total_space"    />
+            <result property="occupSpace"    column="occup_space"    />
+        </association>
+    </resultMap>
+
+    <sql id="selectSmtParkingSpaceVo">
+        select parking_space_id,parking_lot_id, parking_space_no, parking_space_status,parking_space_type, order_num, status, remark, del_flag, create_by, create_time, update_by, update_time from smt_parking_space
+    </sql>
+
+    <select id="selectSmtParkingSpaceList" parameterType="SmtParkingSpace" resultMap="SmtParkingSpaceResult">
+        <!--<include refid="selectSmtParkingSpaceVo"/>-->
+        select
+            sps.parking_space_id,
+            sps.parking_lot_id,
+            sps.parking_space_no,
+            sps.parking_space_status,
+            sps.parking_space_type,
+            sps.order_num,
+            sps.status,
+            sps.remark,
+            sps.del_flag,
+            sps.create_by,
+            sps.create_time,
+            sps.update_by,
+            sps.update_time,
+            spl.parking_lot_id,
+            spl.parking_lot_name,
+            spl.parking_lot_type,
+            spl.total_space,
+            spl.occup_space
+        from smt_parking_space sps
+        LEFT JOIN (
+            select
+                spl.parking_lot_id,
+                spl.parking_lot_name,
+                spl.parking_lot_type,
+                spl.total_space,
+                (
+                 select count(1) from smt_parking_space sps where sps.parking_lot_id = spl.parking_lot_id and sps.status = 1
+                ) occup_space
+            from smt_parking_lot spl
+        ) spl on spl.parking_lot_id = sps.parking_lot_id
+        <if test="ownerId != null">
+            LEFT JOIN smt_owner_parking_space sops on sops.parking_space_id = sps.parking_space_id
+        </if>
+        <where>
+            <if test="parkingSpaceNo != null  and parkingSpaceNo != ''"> and sps.parking_space_no = #{parkingSpaceNo}</if>
+            <if test="parkingLotId != null "> and sps.parking_lot_id = #{parkingLotId}</if>
+            <if test="parkingSpaceStatus != null  and parkingSpaceStatus != ''"> and sps.parking_space_status = #{parkingSpaceStatus}</if>
+            <if test="parkingSpaceType != null  and parkingSpaceType != ''"> and sps.parking_space_type = #{parkingSpaceType}</if>
+            <if test="orderNum != null "> and sps.order_num = #{orderNum}</if>
+            <if test="status != null  and status != ''"> and sps.status = #{status}</if>
+            <if test="ownerId != null"> and (sops.owner_id = #{ownerId})
+                <if test="showTemp == '1'.toString()">
+                    or (sps.parking_space_type = '0')
+                </if>
+            </if>
+            <if test="assignStatus == '1'.toString()">
+                and sps.parking_space_id not in (
+                    SELECT parking_space_id from smt_owner_parking_space where owner_id != #{userId}
+                )
+            </if>
+        </where>
+    </select>
+    
+    <select id="selectSmtParkingSpaceByParkingSpaceId" parameterType="Long" resultMap="SmtParkingSpaceResult">
+        <include refid="selectSmtParkingSpaceVo"/>
+        where parking_space_id = #{parkingSpaceId}
+    </select>
+
+    <insert id="insertSmtParkingSpace" parameterType="SmtParkingSpace" useGeneratedKeys="true" keyProperty="parkingSpaceId">
+        insert into smt_parking_space
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="parkingSpaceNo != null and parkingSpaceNo != ''">parking_space_no,</if>
+            <if test="parkingSpaceStatus != null">parking_space_status,</if>
+            <if test="parkingSpaceType != null">parking_space_type,</if>
+            <if test="parkingLotId != null "> parking_lot_id,</if>
+            <if test="orderNum != null">order_num,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="parkingSpaceNo != null and parkingSpaceNo != ''">#{parkingSpaceNo},</if>
+            <if test="parkingSpaceStatus != null">#{parkingSpaceStatus},</if>
+            <if test="parkingSpaceType != null">#{parkingSpaceType},</if>
+            <if test="parkingLotId != null "> #{parkingLotId},</if>
+            <if test="orderNum != null">#{orderNum},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSmtParkingSpace" parameterType="SmtParkingSpace">
+        update smt_parking_space
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="parkingSpaceNo != null and parkingSpaceNo != ''">parking_space_no = #{parkingSpaceNo},</if>
+            <if test="parkingSpaceStatus != null">parking_space_status = #{parkingSpaceStatus},</if>
+            <if test="parkingSpaceType != null">parking_space_type = #{parkingSpaceType},</if>
+            <if test="parkingLotId != null "> parking_lot_id = #{parkingLotId},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where parking_space_id = #{parkingSpaceId}
+    </update>
+
+    <delete id="deleteSmtParkingSpaceByParkingSpaceId" parameterType="Long">
+        delete from smt_parking_space where parking_space_id = #{parkingSpaceId}
+    </delete>
+
+    <delete id="deleteSmtParkingSpaceByParkingSpaceIds" parameterType="String">
+        delete from smt_parking_space where parking_space_id in 
+        <foreach item="parkingSpaceId" collection="array" open="(" separator="," close=")">
+            #{parkingSpaceId}
+        </foreach>
+    </delete>
+
+    <select id="selectParkingSpaceByOwnerId" parameterType="SmtParkingSpace" resultMap="SmtParkingSpaceResult">
+        <!--<include refid="selectSmtParkingSpaceVo"/>-->
+        select
+        sps.parking_space_id,
+        sps.parking_lot_id,
+        sps.parking_space_no,
+        sps.parking_space_status,
+        sps.order_num,
+        sps.status,
+        sps.remark,
+        sps.del_flag,
+        sps.create_by,
+        sps.create_time,
+        sps.update_by,
+        sps.update_time,
+        spl.parking_lot_id,
+        spl.parking_lot_name,
+        spl.parking_lot_type,
+        spl.total_space,
+        spl.occup_space
+        from smt_parking_space sps
+        LEFT JOIN (
+            select
+            spl.parking_lot_id,
+            spl.parking_lot_name,
+            spl.parking_lot_type,
+            spl.total_space,
+                (
+                select count(1) from smt_parking_space sps where sps.parking_lot_id = spl.parking_lot_id and sps.status = 1
+                ) occup_space
+            from smt_parking_lot spl
+        ) spl on spl.parking_lot_id = sps.parking_lot_id
+        left join smt_owner_parking_space sops on sops.parking_space_id = sps.parking_space_id
+        <where>
+            <if test="ownerId != null "> and sops.owner_id = #{ownerId}</if>
+        </where>
+    </select>
+</mapper>

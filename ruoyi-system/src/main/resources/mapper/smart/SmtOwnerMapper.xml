@@ -1,0 +1,167 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.smart.mapper.SmtOwnerMapper">
+    
+    <resultMap type="SmtOwner" id="SmtOwnerResult">
+        <result property="ownerId"    column="owner_id"    />
+        <result property="ownerName"    column="owner_name"    />
+        <result property="email"    column="email"    />
+        <result property="phonenumber"    column="phonenumber"    />
+        <result property="sex"    column="sex"    />
+        <result property="avatar"    column="avatar"    />
+        <result property="status"    column="status"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+        <association property="build" javaType="SmtBuild">
+            <result property="buildId" column="build_id"/>
+            <result property="buildName"    column="build_name"    />
+            <result property="buildType"    column="build_type"    />
+        </association>
+
+        <!-- 嵌套映射 Unit -->
+        <association property="unit" javaType="SmtUnit">
+            <result property="unitId"    column="unit_id"    />
+            <result property="buildId"    column="build_id"    />
+            <result property="unitName"    column="unit_name"    />
+        </association>
+        <association property="house" javaType="SmtHouse">
+            <result property="houseId"    column="house_id"    />
+            <result property="buildId"    column="build_id"    />
+            <result property="unitId"    column="unit_id"    />
+            <result property="houseNo"    column="house_no"    />
+            <result property="houseArea"    column="house_area"    />
+            <result property="houseType"    column="house_type"    />
+            <result property="useStatus"    column="use_status"    />
+        </association>
+        <association property="parkingSpace" javaType="SmtParkingSpace">
+            <result property="parkingSpaceId"    column="parking_space_id"    />
+            <result property="parkingSpaceNo"    column="parking_space_no"    />
+            <result property="parkingSpaceStatus"    column="parking_space_status"    />
+        </association>
+    </resultMap>
+
+    <sql id="selectSmtOwnerVo">
+        select owner_id, owner_name, email, phonenumber, sex, avatar, status, del_flag, create_by, create_time, update_by, update_time, remark from smt_owner
+    </sql>
+
+    <select id="selectSmtOwnerList" parameterType="SmtOwner" resultMap="SmtOwnerResult">
+        <!--<include refid="selectSmtOwnerVo"/>-->
+        select
+            so.owner_id,
+            so.owner_name,
+            so.email,
+            so.phonenumber,
+            so.sex,
+            so.avatar,
+            so.status,
+            so.del_flag,
+            so.create_by,
+            so.create_time,
+            so.update_by,
+            so.update_time,
+            so.remark,
+            su.unit_id,
+            su.unit_name,
+            sb.build_id,
+            sb.build_name,
+            sb.build_type,
+            sh.house_id,
+            sh.build_id,
+            sh.unit_id,
+            sh.house_no,
+            sh.house_area,
+            sh.house_type,
+            sh.use_status,
+            sps.parking_space_id,
+            sps.parking_space_no,
+            sps.parking_space_status
+        from smt_owner so
+        left join smt_owner_house soh on soh.owner_id = so.owner_id
+        left join smt_owner_parking_space sops on sops.owner_id = so.owner_id
+        left join smt_house sh on sh.house_id = soh.house_id
+        left join smt_parking_space sps on sps.parking_space_id = sops.parking_space_id
+        left join smt_build sb on sb.build_id = sh.build_id
+        left join smt_unit su on su.unit_id = sh.unit_id
+        <where>  
+            <if test="ownerName != null  and ownerName != ''"> and owner_name like concat('%', #{ownerName}, '%')</if>
+            <if test="email != null  and email != ''"> and email = #{email}</if>
+            <if test="phonenumber != null  and phonenumber != ''"> and phonenumber = #{phonenumber}</if>
+            <if test="sex != null  and sex != ''"> and sex = #{sex}</if>
+            <if test="avatar != null  and avatar != ''"> and avatar = #{avatar}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectSmtOwnerByOwnerId" parameterType="Long" resultMap="SmtOwnerResult">
+        <include refid="selectSmtOwnerVo"/>
+        where owner_id = #{ownerId}
+    </select>
+
+    <insert id="insertSmtOwner" parameterType="SmtOwner" useGeneratedKeys="true" keyProperty="ownerId">
+        insert into smt_owner
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="ownerName != null and ownerName != ''">owner_name,</if>
+            <if test="email != null">email,</if>
+            <if test="phonenumber != null">phonenumber,</if>
+            <if test="sex != null">sex,</if>
+            <if test="avatar != null">avatar,</if>
+            <if test="status != null">status,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="ownerName != null and ownerName != ''">#{ownerName},</if>
+            <if test="email != null">#{email},</if>
+            <if test="phonenumber != null">#{phonenumber},</if>
+            <if test="sex != null">#{sex},</if>
+            <if test="avatar != null">#{avatar},</if>
+            <if test="status != null">#{status},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSmtOwner" parameterType="SmtOwner">
+        update smt_owner
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="ownerName != null and ownerName != ''">owner_name = #{ownerName},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="phonenumber != null">phonenumber = #{phonenumber},</if>
+            <if test="sex != null">sex = #{sex},</if>
+            <if test="avatar != null">avatar = #{avatar},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where owner_id = #{ownerId}
+    </update>
+
+    <delete id="deleteSmtOwnerByOwnerId" parameterType="Long">
+        delete from smt_owner where owner_id = #{ownerId}
+    </delete>
+
+    <delete id="deleteSmtOwnerByOwnerIds" parameterType="String">
+        delete from smt_owner where owner_id in 
+        <foreach item="ownerId" collection="array" open="(" separator="," close=")">
+            #{ownerId}
+        </foreach>
+    </delete>
+</mapper>

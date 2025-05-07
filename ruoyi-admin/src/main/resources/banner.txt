@@ -1,0 +1,3 @@
+Application Version: ${ruoyi.version}
+Spring Boot Version: ${spring-boot.version}
+=====智能物业综合管理系统启动=====

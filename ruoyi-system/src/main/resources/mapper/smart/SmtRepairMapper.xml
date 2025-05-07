@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.smart.mapper.SmtRepairMapper">
+    
+    <resultMap type="SmtRepair" id="SmtRepairResult">
+        <result property="repairId"    column="repair_id"    />
+        <result property="ownerId"    column="owner_id"    />
+        <result property="title"    column="title"    />
+        <result property="content"    column="content"    />
+        <result property="address"    column="address"    />
+        <result property="phone"    column="phone"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <association property="owner" javaType="SysUser">
+            <id     property="userId"       column="user_id"      />
+            <result property="userName"     column="user_name"    />
+            <result property="nickName"     column="nick_name"    />
+            <result property="email"        column="email"        />
+            <result property="phonenumber"  column="phonenumber"  />
+            <result property="sex"          column="sex"          />
+        </association>
+    </resultMap>
+
+    <sql id="selectSmtRepairVo">
+        select repair_id, owner_id,title, content, address, phone, status, remark, del_flag, create_by, create_time, update_by, update_time from smt_repair
+    </sql>
+
+    <select id="selectSmtRepairList" parameterType="SmtRepair" resultMap="SmtRepairResult">
+        <!--<include refid="selectSmtRepairVo"/>-->
+        select
+            sr.repair_id,
+            sr.owner_id,title,
+            sr.content,
+            sr.address,
+            sr.phone,
+            sr.status,
+            sr.remark,
+            sr.del_flag,
+            sr.create_by,
+            sr.create_time,
+            sr.update_by,
+            sr.update_time,
+            su.user_id,
+            su.user_name,
+            su.nick_name,
+            su.sex,
+            su.email,
+            su.phonenumber
+        from smt_repair sr
+        left join sys_user su on su.user_id = sr.owner_id
+        <where>  
+            <if test="ownerId != null"> and sr.owner_id = #{ownerId}</if>
+            <if test="title != null  and title != ''"> and sr.title = #{title}</if>
+            <if test="content != null  and content != ''"> and sr.content = #{content}</if>
+            <if test="address != null  and address != ''"> and sr.address = #{address}</if>
+            <if test="phone != null  and phone != ''"> and sr.phone = #{phone}</if>
+            <if test="status != null  and status != ''"> and sr.status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectSmtRepairByRepairId" parameterType="Long" resultMap="SmtRepairResult">
+        <include refid="selectSmtRepairVo"/>
+        where repair_id = #{repairId}
+    </select>
+
+    <insert id="insertSmtRepair" parameterType="SmtRepair" useGeneratedKeys="true" keyProperty="repairId">
+        insert into smt_repair
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="ownerId != null"> owner_id,</if>
+            <if test="title != null and title != ''">title,</if>
+            <if test="content != null">content,</if>
+            <if test="address != null">address,</if>
+            <if test="phone != null">phone,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="ownerId != null">  #{ownerId},</if>
+            <if test="title != null and title != ''">#{title},</if>
+            <if test="content != null">#{content},</if>
+            <if test="address != null">#{address},</if>
+            <if test="phone != null">#{phone},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSmtRepair" parameterType="SmtRepair">
+        update smt_repair
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="ownerId != null"> owner_id = #{ownerId},</if>
+            <if test="title != null and title != ''">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where repair_id = #{repairId}
+    </update>
+
+    <delete id="deleteSmtRepairByRepairId" parameterType="Long">
+        delete from smt_repair where repair_id = #{repairId}
+    </delete>
+
+    <delete id="deleteSmtRepairByRepairIds" parameterType="String">
+        delete from smt_repair where repair_id in 
+        <foreach item="repairId" collection="array" open="(" separator="," close=")">
+            #{repairId}
+        </foreach>
+    </delete>
+</mapper>

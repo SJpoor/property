@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.smart.mapper.SmtParkingRentRecordMapper">
+    
+    <resultMap type="SmtParkingRentRecord" id="SmtParkingRentRecordResult">
+        <result property="parkingRentRecordId"    column="parking_rent_record_id"    />
+        <result property="parkingRentId"    column="parking_rent_id"    />
+        <result property="ownerId"    column="owner_id"    />
+        <result property="rentDays"    column="rent_days"    />
+        <result property="rentPrice"    column="rent_price"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSmtParkingRentRecordVo">
+        select parking_rent_record_id, parking_rent_id, owner_id, rent_days, rent_price, status, remark, del_flag, create_by, create_time, update_by, update_time from smt_parking_rent_record
+    </sql>
+
+    <select id="selectSmtParkingRentRecordList" parameterType="SmtParkingRentRecord" resultMap="SmtParkingRentRecordResult">
+        <include refid="selectSmtParkingRentRecordVo"/>
+        <where>  
+            <if test="parkingRentId != null "> and parking_rent_id = #{parkingRentId}</if>
+            <if test="ownerId != null "> and owner_id = #{ownerId}</if>
+            <if test="rentDays != null "> and rent_days = #{rentDays}</if>
+            <if test="rentPrice != null "> and rent_price = #{rentPrice}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectSmtParkingRentRecordByParkingRentRecordId" parameterType="Long" resultMap="SmtParkingRentRecordResult">
+        <include refid="selectSmtParkingRentRecordVo"/>
+        where parking_rent_record_id = #{parkingRentRecordId}
+    </select>
+
+    <insert id="insertSmtParkingRentRecord" parameterType="SmtParkingRentRecord" useGeneratedKeys="true" keyProperty="parkingRentRecordId">
+        insert into smt_parking_rent_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="parkingRentId != null">parking_rent_id,</if>
+            <if test="ownerId != null">owner_id,</if>
+            <if test="rentDays != null">rent_days,</if>
+            <if test="rentPrice != null">rent_price,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="parkingRentId != null">#{parkingRentId},</if>
+            <if test="ownerId != null">#{ownerId},</if>
+            <if test="rentDays != null">#{rentDays},</if>
+            <if test="rentPrice != null">#{rentPrice},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSmtParkingRentRecord" parameterType="SmtParkingRentRecord">
+        update smt_parking_rent_record
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="parkingRentId != null">parking_rent_id = #{parkingRentId},</if>
+            <if test="ownerId != null">owner_id = #{ownerId},</if>
+            <if test="rentDays != null">rent_days = #{rentDays},</if>
+            <if test="rentPrice != null">rent_price = #{rentPrice},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where parking_rent_record_id = #{parkingRentRecordId}
+    </update>
+
+    <delete id="deleteSmtParkingRentRecordByParkingRentRecordId" parameterType="Long">
+        delete from smt_parking_rent_record where parking_rent_record_id = #{parkingRentRecordId}
+    </delete>
+
+    <delete id="deleteSmtParkingRentRecordByParkingRentRecordIds" parameterType="String">
+        delete from smt_parking_rent_record where parking_rent_record_id in 
+        <foreach item="parkingRentRecordId" collection="array" open="(" separator="," close=")">
+            #{parkingRentRecordId}
+        </foreach>
+    </delete>
+</mapper>

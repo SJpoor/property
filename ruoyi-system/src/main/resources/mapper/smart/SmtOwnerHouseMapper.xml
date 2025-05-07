@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.smart.mapper.SmtOwnerHouseMapper">
+    
+    <resultMap type="SmtOwnerHouse" id="SmtOwnerHouseResult">
+        <result property="ownerHouseId"    column="owner_house_id"    />
+        <result property="ownerId"    column="owner_id"    />
+        <result property="houseId"    column="house_id"    />
+        <result property="orderNum"    column="order_num"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <!-- 嵌套映射 业主 -->
+        <association property="owner" javaType="SysUser">
+            <id     property="userId"       column="user_id"      />
+            <result property="userName"     column="user_name"    />
+            <result property="nickName"     column="nick_name"    />
+            <result property="email"        column="email"        />
+            <result property="phonenumber"  column="phonenumber"  />
+            <result property="sex"          column="sex"          />
+        </association>
+        <association property="house" javaType="SmtHouse">
+            <result property="houseId"    column="house_id"    />
+            <result property="buildId"    column="build_id"    />
+            <result property="unitId"    column="unit_id"    />
+            <result property="houseNo"    column="house_no"    />
+            <result property="houseArea"    column="house_area"    />
+            <result property="houseType"    column="house_type"    />
+            <result property="useStatus"    column="use_status"    />
+        </association>
+        <association property="build" javaType="SmtBuild">
+            <result property="buildId" column="build_id"/>
+            <result property="buildName"    column="build_name"    />
+            <result property="buildType"    column="build_type"    />
+        </association>
+
+        <!-- 嵌套映射 Unit -->
+        <association property="unit" javaType="SmtUnit">
+            <result property="unitId"    column="unit_id"    />
+            <result property="buildId"    column="build_id"    />
+            <result property="unitName"    column="unit_name"    />
+        </association>
+    </resultMap>
+
+    <sql id="selectSmtOwnerHouseVo">
+        select owner_house_id, owner_id, house_id,  order_num, status, remark, del_flag, create_by, create_time, update_by, update_time from smt_owner_house
+    </sql>
+
+    <select id="selectSmtOwnerHouseList" parameterType="SmtOwnerHouse" resultMap="SmtOwnerHouseResult">
+        <!--<include refid="selectSmtOwnerHouseVo"/>-->
+        select
+            soh.owner_house_id,
+            soh.owner_id,
+            soh.house_id,
+            soh.order_num,
+            soh.status,
+            soh.remark,
+            soh.del_flag,
+            soh.create_by,
+            soh.create_time,
+            soh.update_by,
+            soh.update_time,
+            su.user_id,
+            su.user_name,
+            su.nick_name,
+            su.sex,
+            su.email,
+            su.phonenumber,
+            sh.house_id,
+            sh.build_id,
+            sh.unit_id,
+            sh.house_no,
+            sh.house_area,
+            sh.house_type,
+            sh.use_status,
+            sb.build_id,
+            sb.build_name,
+            sb.build_type,
+            sun.unit_id,
+            sun.unit_name
+        from smt_owner_house soh
+        left join smt_house sh on sh.house_id = soh.house_id
+        left join sys_user su on su.user_id = soh.owner_id
+        left join smt_build sb on sb.build_id = sh.build_id
+        left join smt_unit sun on sun.unit_id = sh.unit_id
+        <where>  
+            <if test="ownerId != null "> and soh.owner_id = #{ownerId}</if>
+            <if test="houseId != null "> and soh.house_id = #{houseId}</if>
+            <if test="orderNum != null "> and soh.order_num = #{orderNum}</if>
+            <if test="status != null  and status != ''"> and soh.status = #{status}</if>
+            <if test="houseIds != null and houseIds.size() > 0">
+                and soh.house_id in
+                <foreach item="houseId" collection="houseIds" open="(" separator="," close=")">
+                    #{houseId}
+                </foreach>
+            </if>
+        </where>
+    </select>
+    
+    <select id="selectSmtOwnerHouseByOwnerHouseId" parameterType="Long" resultMap="SmtOwnerHouseResult">
+        <include refid="selectSmtOwnerHouseVo"/>
+        where owner_house_id = #{ownerHouseId}
+    </select>
+
+    <insert id="insertSmtOwnerHouse" parameterType="SmtOwnerHouse" useGeneratedKeys="true" keyProperty="ownerHouseId">
+        insert into smt_owner_house
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="ownerId != null">owner_id,</if>
+            <if test="houseId != null">house_id,</if>
+            <if test="orderNum != null">order_num,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="ownerId != null">#{ownerId},</if>
+            <if test="houseId != null">#{houseId},</if>
+            <if test="orderNum != null">#{orderNum},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSmtOwnerHouse" parameterType="SmtOwnerHouse">
+        update smt_owner_house
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="ownerId != null">owner_id = #{ownerId},</if>
+            <if test="houseId != null">house_id = #{houseId},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where owner_house_id = #{ownerHouseId}
+    </update>
+
+    <delete id="deleteSmtOwnerHouseByOwnerHouseId" parameterType="Long">
+        delete from smt_owner_house where owner_house_id = #{ownerHouseId}
+    </delete>
+
+    <delete id="deleteSmtOwnerHouseByOwnerHouseIds" parameterType="String">
+        delete from smt_owner_house where owner_house_id in 
+        <foreach item="ownerHouseId" collection="array" open="(" separator="," close=")">
+            #{ownerHouseId}
+        </foreach>
+    </delete>
+
+    <delete id="deleteOwnerHouse" parameterType="SmtOwnerHouse">
+        delete from smt_owner_house where owner_id = #{ownerId} and house_id = #{houseId}
+    </delete>
+
+    <delete id="deleteOwnerHouseByOwnerId" parameterType="SmtOwnerHouse">
+        delete from smt_owner_house where owner_id = #{ownerId}
+    </delete>
+
+    <insert id="batchOwnerHouse">
+        insert into smt_owner_house(owner_id, house_id) values
+        <foreach item="item" index="index" collection="list" separator=",">
+            (#{item.ownerId},#{item.houseId})
+        </foreach>
+    </insert>
+
+</mapper>

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.smart.mapper.SmtParkingSpaceRecordMapper">
+    
+    <resultMap type="SmtParkingSpaceRecord" id="SmtParkingSpaceRecordResult">
+        <result property="parkingRecordId"    column="parking_record_id"    />
+        <result property="parkingSpaceId"    column="parking_space_id"    />
+        <result property="ownerId"    column="owner_id"    />
+        <result property="plateNo"    column="plate_no"    />
+        <result property="orderNum"    column="order_num"    />
+        <result property="driveInTime"    column="drive_in_time"    />
+        <result property="driveOutTime"    column="drive_out_time"    />
+        <result property="status"    column="status"    />
+        <result property="feeStatus"    column="fee_status"    />
+        <result property="remark"    column="remark"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <!-- 嵌套映射 Building -->
+        <association property="owner" javaType="SysUser">
+            <id     property="userId"       column="user_id"      />
+            <result property="userName"     column="user_name"    />
+            <result property="nickName"     column="nick_name"    />
+            <result property="email"        column="email"        />
+            <result property="phonenumber"  column="phonenumber"  />
+            <result property="sex"          column="sex"          />
+        </association>
+        <!-- 嵌套映射 Building -->
+        <association property="parkingSpace" javaType="SmtParkingSpace">
+            <result property="parkingSpaceId"    column="parking_space_id"    />
+            <result property="parkingSpaceNo"    column="parking_space_no"    />
+            <result property="parkingSpaceStatus"    column="parking_space_status"    />
+        </association>
+        <association property="attr" javaType="SysAttr">
+            <result property="attrId"    column="attr_id"    />
+            <result property="bizId"    column="biz_id"    />
+            <result property="attrName"    column="attr_name"    />
+            <result property="attrNewName"    column="attr_new_name"    />
+            <result property="attrUrl"    column="attr_url"    />
+        </association>
+        <association property="parkingRent" javaType="SmtParkingRent">
+            <result property="parkingRentId"    column="parking_rent_id"    />
+            <result property="parkingSpaceId"    column="parking_space_id"    />
+            <result property="feeId"    column="fee_id"    />
+            <result property="startTime"    column="start_time"    />
+            <result property="endTime"    column="end_time"    />
+            <result property="rentAmount"    column="rent_amount"    />
+        </association>
+    </resultMap>
+
+    <sql id="selectSmtParkingSpaceRecordVo">
+        select parking_record_id, parking_space_id, owner_id, plate_no, order_num, drive_in_time, drive_out_time, status,fee_status, remark, del_flag, create_by, create_time, update_by, update_time from smt_parking_space_record
+    </sql>
+
+    <select id="selectSmtParkingSpaceRecordList" parameterType="SmtParkingSpaceRecord" resultMap="SmtParkingSpaceRecordResult">
+        <!--<include refid="selectSmtParkingSpaceRecordVo"/>-->
+        select
+            spsr.parking_record_id,
+            spsr.parking_space_id,
+            spsr.owner_id,
+            spsr.plate_no,
+            spsr.order_num,
+            spsr.drive_in_time,
+            spsr.drive_out_time,
+            spsr.status,
+            spsr.fee_status,
+            spsr.remark,
+            spsr.del_flag,
+            spsr.create_by,
+            spsr.create_time,
+            spsr.update_by,
+            spsr.update_time,
+            sps.parking_space_id,
+            sps.parking_space_no,
+            sps.parking_space_status,
+            su.user_id,
+            su.user_name,
+            su.nick_name,
+            su.sex,
+            su.email,
+            su.phonenumber,
+            spr.parking_rent_id,
+            spr.fee_id,
+            spr.start_time,
+            spr.end_time,
+            spr.rent_amount,
+            sa.attr_id,
+            sa.biz_id,
+            sa.attr_name,
+            sa.attr_new_name,
+            sa.attr_url
+        from smt_parking_space_record spsr
+        left join smt_parking_space sps on sps.parking_space_id = spsr.parking_space_id
+        left join sys_user su on su.user_id = spsr.owner_id
+        LEFT JOIN smt_parking_rent spr on spr.parking_space_id = spsr.parking_space_id
+        LEFT JOIN sys_attr sa on sa.biz_id = spsr.parking_record_id
+        <where>  
+            <if test="parkingSpaceId != null "> and spsr.parking_space_id = #{parkingSpaceId}</if>
+            <if test="ownerId != null "> and spsr.owner_id = #{ownerId}</if>
+            <if test="plateNo != null  and plateNo != ''"> and spsr.plate_no = #{plateNo}</if>
+            <if test="orderNum != null "> and spsr.order_num = #{orderNum}</if>
+            <if test="driveInTime != null "> and spsr.drive_in_time >= #{driveInStartTime} and spsr.drive_out_time is null</if>
+            <!--<if test="driveOutTime != null "> and spsr.drive_out_time BETWEEN #{driveOutStartTime} AND #{driveOutEndTime} </if>-->
+            <if test="status != null  and status != ''"> and spsr.status = #{status}</if>
+            <if test="feeStatus != null  and feeStatus != ''"> and spsr.fee_status = #{feeStatus}</if>
+        </where>
+    </select>
+    
+    <select id="selectSmtParkingSpaceRecordByParkingRecordId" parameterType="Long" resultMap="SmtParkingSpaceRecordResult">
+        <include refid="selectSmtParkingSpaceRecordVo"/>
+        where parking_record_id = #{parkingRecordId}
+    </select>
+
+    <insert id="insertSmtParkingSpaceRecord" parameterType="SmtParkingSpaceRecord" useGeneratedKeys="true" keyProperty="parkingRecordId">
+        insert into smt_parking_space_record
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="parkingSpaceId != null">parking_space_id,</if>
+            <if test="ownerId != null">owner_id,</if>
+            <if test="plateNo != null">plate_no,</if>
+            <if test="orderNum != null">order_num,</if>
+            <if test="driveInTime != null">drive_in_time,</if>
+            <if test="driveOutTime != null">drive_out_time,</if>
+            <if test="status != null">status,</if>
+            <if test="feeStatus != null"> fee_status ,</if>
+            <if test="remark != null">remark,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="parkingSpaceId != null">#{parkingSpaceId},</if>
+            <if test="ownerId != null">#{ownerId},</if>
+            <if test="plateNo != null">#{plateNo},</if>
+            <if test="orderNum != null">#{orderNum},</if>
+            <if test="driveInTime != null">#{driveInTime},</if>
+            <if test="driveOutTime != null">#{driveOutTime},</if>
+            <if test="status != null">#{status},</if>
+            <if test="feeStatus != null "> #{feeStatus},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSmtParkingSpaceRecord" parameterType="SmtParkingSpaceRecord">
+        update smt_parking_space_record
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="parkingSpaceId != null">parking_space_id = #{parkingSpaceId},</if>
+            <if test="ownerId != null">owner_id = #{ownerId},</if>
+            <if test="plateNo != null">plate_no = #{plateNo},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="driveInTime != null">drive_in_time = #{driveInTime},</if>
+            <if test="driveOutTime != null">drive_out_time = #{driveOutTime},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="feeStatus != null"> fee_status = #{feeStatus},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where parking_record_id = #{parkingRecordId}
+    </update>
+
+    <delete id="deleteSmtParkingSpaceRecordByParkingRecordId" parameterType="Long">
+        delete from smt_parking_space_record where parking_record_id = #{parkingRecordId}
+    </delete>
+
+    <delete id="deleteSmtParkingSpaceRecordByParkingRecordIds" parameterType="String">
+        delete from smt_parking_space_record where parking_record_id in 
+        <foreach item="parkingRecordId" collection="array" open="(" separator="," close=")">
+            #{parkingRecordId}
+        </foreach>
+    </delete>
+
+</mapper>

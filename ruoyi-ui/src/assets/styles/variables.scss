@@ -1,0 +1,73 @@
+// base color
+$blue:#324157;
+$light-blue:#3A71A8;
+$red:#C03639;
+$pink: #E65D6E;
+$green: #30B08F;
+$tiffany: #4AB7BD;
+$yellow:#FEC171;
+$panGreen: #30B08F;
+
+// 默认菜单主题风格
+$base-menu-color:#bfcbd9;
+$base-menu-color-active:#f4f4f5;
+$base-menu-background:#304156;
+$base-logo-title-color: #ffffff;
+
+$base-menu-light-color:rgba(0,0,0,.70);
+$base-menu-light-background:#ffffff;
+$base-logo-light-title-color: #001529;
+
+$base-sub-menu-background:#1f2d3d;
+$base-sub-menu-hover:#001528;
+
+$base-menu-blue-color:#95c39d;
+$base-menu-blue-color-active:#6faf86;
+// TODO
+$base-sub-menu-blue-background:#547e5f;
+// TODO
+$base-sub-menu-blue-hover:#355847;
+$base-menu-blue-light-background:#0e422f;
+$base-logo-blue-light-title-color: #5cc18f;
+$base-menu-blue-background:#1e523b;
+$base-menu-blue-light-color:#dce6f1;
+
+// 自定义暗色菜单风格
+/**
+$base-menu-color:hsla(0,0%,100%,.65);
+$base-menu-color-active:#fff;
+$base-menu-background:#001529;
+$base-logo-title-color: #ffffff;
+
+$base-menu-light-color:rgba(0,0,0,.70);
+$base-menu-light-background:#ffffff;
+$base-logo-light-title-color: #001529;
+
+$base-sub-menu-background:#000c17;
+$base-sub-menu-hover:#001528;
+*/
+
+$base-sidebar-width: 200px;
+
+// the :export directive is the magic sauce for webpack
+// https://www.bluematador.com/blog/how-to-share-variables-between-js-and-sass
+:export {
+  menuColor: $base-menu-color;
+  menuLightColor: $base-menu-light-color;
+  menuColorActive: $base-menu-color-active;
+  menuBackground: $base-menu-background;
+  menuLightBackground: $base-menu-light-background;
+  subMenuBackground: $base-sub-menu-background;
+  subMenuHover: $base-sub-menu-hover;
+  sideBarWidth: $base-sidebar-width;
+  logoTitleColor: $base-logo-title-color;
+  logoLightTitleColor: $base-logo-light-title-color;
+  menuBlueColor: $base-menu-blue-color;
+  menuBlueColorActive: $base-menu-blue-color-active;
+  menuBlueBackground: $base-menu-blue-background;
+  subMenuBlueHover: $base-sub-menu-blue-hover;
+  menuBlueLightBackground: $base-menu-blue-light-background;
+  logoBlueLightTitleColor: $base-logo-blue-light-title-color;
+  menuBlueLightColor: $base-menu-blue-light-color;
+  subMenuBlueBackground: $base-sub-menu-blue-background;
+}

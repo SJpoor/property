@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.system.mapper.SysAttrMapper">
+    
+    <resultMap type="SysAttr" id="SysAttrResult">
+        <result property="attrId"    column="attr_id"    />
+        <result property="bizId"    column="biz_id"    />
+        <result property="attrName"    column="attr_name"    />
+        <result property="attrNewName"    column="attr_new_name"    />
+        <result property="attrUrl"    column="attr_url"    />
+        <result property="attrText"    column="attr_text"    />
+        <result property="status"    column="status"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="remark"    column="remark"    />
+    </resultMap>
+
+    <sql id="selectSysAttrVo">
+        select attr_id, biz_id, attr_name, attr_new_name, attr_url,attr_text, status, del_flag, create_by, create_time, update_by, update_time, remark from sys_attr
+    </sql>
+
+    <select id="selectSysAttrList" parameterType="SysAttr" resultMap="SysAttrResult">
+        <include refid="selectSysAttrVo"/>
+        <where>  
+            <if test="bizId != null "> and biz_id = #{bizId}</if>
+            <if test="attrName != null  and attrName != ''"> and attr_name like concat('%', #{attrName}, '%')</if>
+            <if test="attrNewName != null  and attrNewName != ''"> and attr_new_name like concat('%', #{attrNewName}, '%')</if>
+            <if test="attrUrl != null  and attrUrl != ''"> and attr_url = #{attrUrl}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectSysAttrByAttrId" parameterType="Long" resultMap="SysAttrResult">
+        <include refid="selectSysAttrVo"/>
+        where attr_id = #{attrId}
+    </select>
+
+    <insert id="insertSysAttr" parameterType="SysAttr" useGeneratedKeys="true" keyProperty="attrId">
+        insert into sys_attr
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="bizId != null">biz_id,</if>
+            <if test="attrName != null and attrName != ''">attr_name,</if>
+            <if test="attrNewName != null and attrNewName != ''">attr_new_name,</if>
+            <if test="attrUrl != null">attr_url,</if>
+            <if test="attrText != null">attr_text,</if>
+            <if test="status != null">status,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="remark != null">remark,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="bizId != null">#{bizId},</if>
+            <if test="attrName != null and attrName != ''">#{attrName},</if>
+            <if test="attrNewName != null and attrNewName != ''">#{attrNewName},</if>
+            <if test="attrUrl != null">#{attrUrl},</if>
+            <if test="attrText != null">#{attrText},</if>
+            <if test="status != null">#{status},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="remark != null">#{remark},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSysAttr" parameterType="SysAttr">
+        update sys_attr
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="bizId != null">biz_id = #{bizId},</if>
+            <if test="attrName != null and attrName != ''">attr_name = #{attrName},</if>
+            <if test="attrNewName != null and attrNewName != ''">attr_new_name = #{attrNewName},</if>
+            <if test="attrUrl != null">attr_url = #{attrUrl},</if>
+            <if test="attrText != null">attr_text = #{attrText},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+        </trim>
+        where attr_id = #{attrId}
+    </update>
+
+    <delete id="deleteSysAttrByAttrId" parameterType="Long">
+        delete from sys_attr where attr_id = #{attrId}
+    </delete>
+
+    <delete id="deleteSysAttrByAttrIds" parameterType="String">
+        delete from sys_attr where attr_id in 
+        <foreach item="attrId" collection="array" open="(" separator="," close=")">
+            #{attrId}
+        </foreach>
+    </delete>
+</mapper>

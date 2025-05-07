@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.smart.mapper.SmtParkingLotMapper">
+    
+    <resultMap type="SmtParkingLot" id="SmtParkingLotResult">
+        <result property="parkingLotId"    column="parking_lot_id"    />
+        <result property="parkingLotName"    column="parking_lot_name"    />
+        <result property="parkingLotType"    column="parking_lot_type"    />
+        <result property="totalSpace"    column="total_space"    />
+        <result property="occupSpace"    column="occup_space"    />
+        <result property="orderNum"    column="order_num"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+    </resultMap>
+
+    <sql id="selectSmtParkingLotVo">
+        select parking_lot_id, parking_lot_name,parking_lot_type, total_space, order_num, status, remark, del_flag, create_by, create_time, update_by, update_time from smt_parking_lot
+    </sql>
+
+    <select id="selectSmtParkingLotList" parameterType="SmtParkingLot" resultMap="SmtParkingLotResult">
+        <!--<include refid="selectSmtParkingLotVo"/>-->
+        select
+            spl.parking_lot_id,
+            spl.parking_lot_name,
+            spl.parking_lot_type,
+            spl.total_space,
+            (
+                select count(1) from smt_parking_space sps where sps.parking_lot_id = spl.parking_lot_id and sps.status = 1
+            ) occup_space,
+            spl.order_num,
+            spl.status,
+            spl.remark,
+            spl.del_flag,
+            spl.create_by,
+            spl.create_time,
+            spl.update_by,
+            spl.update_time
+        from smt_parking_lot spl
+        <where>  
+            <if test="parkingLotName != null  and parkingLotName != ''"> and parking_lot_name like concat('%', #{parkingLotName}, '%')</if>
+            <if test="parkingLotType != null  and parkingLotType != ''"> and parking_lot_type = #{parkingLotType}</if>
+            <if test="totalSpace != null "> and total_space = #{totalSpace}</if>
+            <if test="orderNum != null "> and order_num = #{orderNum}</if>
+            <if test="status != null  and status != ''"> and status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectSmtParkingLotByParkingLotId" parameterType="Long" resultMap="SmtParkingLotResult">
+        <include refid="selectSmtParkingLotVo"/>
+        where parking_lot_id = #{parkingLotId}
+    </select>
+
+    <insert id="insertSmtParkingLot" parameterType="SmtParkingLot" useGeneratedKeys="true" keyProperty="parkingLotId">
+        insert into smt_parking_lot
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="parkingLotName != null and parkingLotName != ''">parking_lot_name,</if>
+            <if test="parkingLotType != null  and parkingLotType != ''"> parking_lot_type,</if>
+            <if test="totalSpace != null">total_space,</if>
+            <if test="orderNum != null">order_num,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="parkingLotName != null and parkingLotName != ''">#{parkingLotName},</if>
+            <if test="parkingLotType != null  and parkingLotType != ''"> #{parkingLotType},</if>
+            <if test="totalSpace != null">#{totalSpace},</if>
+            <if test="orderNum != null">#{orderNum},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSmtParkingLot" parameterType="SmtParkingLot">
+        update smt_parking_lot
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="parkingLotName != null and parkingLotName != ''">parking_lot_name = #{parkingLotName},</if>
+            <if test="parkingLotType != null  and parkingLotType != ''"> parking_lot_type = #{parkingLotType},</if>
+            <if test="totalSpace != null">total_space = #{totalSpace},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where parking_lot_id = #{parkingLotId}
+    </update>
+
+    <delete id="deleteSmtParkingLotByParkingLotId" parameterType="Long">
+        delete from smt_parking_lot where parking_lot_id = #{parkingLotId}
+    </delete>
+
+    <delete id="deleteSmtParkingLotByParkingLotIds" parameterType="String">
+        delete from smt_parking_lot where parking_lot_id in 
+        <foreach item="parkingLotId" collection="array" open="(" separator="," close=")">
+            #{parkingLotId}
+        </foreach>
+    </delete>
+</mapper>

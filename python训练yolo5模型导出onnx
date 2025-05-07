@@ -1,0 +1,33 @@
+0.通过 YOLOv5 官方脚本下载
+    git clone https://github.com/ultralytics/yolov5
+
+    cd yolov5
+1.下载预训练模型：
+    python -c "from utils.downloads import attempt_download; attempt_download('yolov5s.pt')"
+
+2.开始训练:
+    python train.py --img 640 --batch 16 --epochs 100 --data license_plate.yaml --weights yolov5s.pt
+
+        --img 640：输入图像尺寸为640x640。
+
+        --batch 16：批量大小为16（根据GPU显存调整）。
+
+        --epochs 100：训练100个epoch。
+
+        --data license_plate.yaml：指定数据集配置文件。
+
+        --weights yolov5s.pt：使用YOLOv5s预训练模型。
+
+3.监控训练过程:
+    tensorboard --logdir runs/train
+
+4.验证模型性能:
+    python val.py --data license_plate.yaml --weights runs/train/exp/weights/best.pt
+
+5.测试模型：
+    python detect.py --source test_image.jpg --weights runs/train/exp/weights/best.pt
+
+6.模型导出onnx
+    python export.py --weights runs/train/exp/weights/best.pt --include onnx
+n
+7.java通过opencv+onnxruntime调用onnx模型识别车牌

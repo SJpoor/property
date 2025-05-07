@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.smart.mapper.SmtHouseMapper">
+    
+    <resultMap type="SmtHouse" id="SmtHouseResult">
+        <result property="houseId"    column="house_id"    />
+        <result property="buildId"    column="build_id"    />
+        <result property="unitId"    column="unit_id"    />
+        <result property="houseNo"    column="house_no"    />
+        <result property="houseArea"    column="house_area"    />
+        <result property="houseType"    column="house_type"    />
+        <result property="orderNum"    column="order_num"    />
+        <result property="useStatus"    column="use_status"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <!-- 嵌套映射 Building -->
+        <association property="build" javaType="SmtBuild">
+            <result property="buildId" column="build_id"/>
+            <result property="buildName"    column="build_name"    />
+            <result property="buildType"    column="build_type"    />
+        </association>
+
+        <!-- 嵌套映射 Unit -->
+        <association property="unit" javaType="SmtUnit">
+            <result property="unitId"    column="unit_id"    />
+            <result property="buildId"    column="build_id"    />
+            <result property="unitName"    column="unit_name"    />
+        </association>
+    </resultMap>
+
+    <sql id="selectSmtHouseVo">
+        select house_id, build_id, unit_id, house_no, house_area, house_type, order_num, use_status, status, remark, del_flag, create_by, create_time, update_by, update_time from smt_house
+    </sql>
+
+    <select id="selectSmtHouseList" parameterType="SmtHouse" resultMap="SmtHouseResult">
+        <!--<include refid="selectSmtHouseVo"/>-->
+        SELECT
+        sh.house_id,
+        sh.house_no,
+        sh.house_area,
+        sh.house_type,
+        sh.order_num,
+        sh.use_status,
+        sh.`STATUS`,
+        sh.remark,
+        sh.del_flag,
+        sh.create_by,
+        sh.create_time,
+        sh.update_by,
+        sh.update_time,
+        sb.build_id,
+        sb.build_name,
+        sb.build_type,
+        sb.order_num,
+        sb.`status`,
+        su.unit_id,
+        su.unit_name
+        FROM
+        smt_house sh
+        LEFT JOIN smt_build sb ON sb.build_id = sh.build_id
+        LEFT JOIN smt_unit su ON su.unit_id = sh.unit_id
+        <if test="ownerId != null">
+            LEFT JOIN smt_owner_house soh on soh.house_id = sh.house_id
+        </if>
+        <where>  
+            <if test="buildId != null "> and sh.build_id = #{buildId}</if>
+            <if test="unitId != null "> and sh.unit_id = #{unitId}</if>
+            <if test="houseNo != null  and houseNo != ''"> and sh.house_no = #{houseNo}</if>
+            <if test="houseArea != null "> and sh.house_area = #{houseArea}</if>
+            <if test="houseType != null  and houseType != ''"> and sh.house_type = #{houseType}</if>
+            <if test="orderNum != null "> and sh.order_num = #{orderNum}</if>
+            <if test="useStatus != null  and useStatus != ''"> and sh.use_status = #{useStatus}</if>
+            <if test="status != null  and status != ''"> and sh.status = #{status}</if>
+            <if test="ownerId != null">
+                and (soh.owner_id = #{ownerId})
+            </if>
+            <if test="assignStatus == '1'.toString()">
+                and sh.house_id not in (
+                    SELECT house_id from smt_owner_house
+                    where owner_id != #{userId}
+                )
+            </if>
+        </where>
+    </select>
+    
+    <select id="selectSmtHouseByHouseId" parameterType="Long" resultMap="SmtHouseResult">
+        <include refid="selectSmtHouseVo"/>
+        where house_id = #{houseId}
+    </select>
+
+    <insert id="insertSmtHouse" parameterType="SmtHouse" useGeneratedKeys="true" keyProperty="houseId">
+        insert into smt_house
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="buildId != null">build_id,</if>
+            <if test="unitId != null">unit_id,</if>
+            <if test="houseNo != null">house_no,</if>
+            <if test="houseArea != null">house_area,</if>
+            <if test="houseType != null">house_type,</if>
+            <if test="orderNum != null">order_num,</if>
+            <if test="useStatus != null">use_status,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="buildId != null">#{buildId},</if>
+            <if test="unitId != null">#{unitId},</if>
+            <if test="houseNo != null">#{houseNo},</if>
+            <if test="houseArea != null">#{houseArea},</if>
+            <if test="houseType != null">#{houseType},</if>
+            <if test="orderNum != null">#{orderNum},</if>
+            <if test="useStatus != null">#{useStatus},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSmtHouse" parameterType="SmtHouse">
+        update smt_house
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="buildId != null">build_id = #{buildId},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="houseNo != null">house_no = #{houseNo},</if>
+            <if test="houseArea != null">house_area = #{houseArea},</if>
+            <if test="houseType != null">house_type = #{houseType},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="useStatus != null">use_status = #{useStatus},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where house_id = #{houseId}
+    </update>
+
+    <delete id="deleteSmtHouseByHouseId" parameterType="Long">
+        delete from smt_house where house_id = #{houseId}
+    </delete>
+
+    <delete id="deleteSmtHouseByHouseIds" parameterType="String">
+        delete from smt_house where house_id in 
+        <foreach item="houseId" collection="array" open="(" separator="," close=")">
+            #{houseId}
+        </foreach>
+    </delete>
+
+    <select id="selectHouseByOwnerId" parameterType="Long" resultMap="SmtHouseResult">
+        SELECT
+        sh.house_id,
+        sh.house_no,
+        sh.house_area,
+        sh.house_type,
+        sh.order_num,
+        sh.use_status,
+        sh.`STATUS`,
+        sh.remark,
+        sh.del_flag,
+        sh.create_by,
+        sh.create_time,
+        sh.update_by,
+        sh.update_time,
+        sb.build_id,
+        sb.build_name,
+        sb.build_type,
+        sb.order_num,
+        sb.`status`,
+        su.unit_id,
+        su.unit_name
+        FROM
+        smt_house sh
+        LEFT JOIN smt_build sb ON sb.build_id = sh.build_id
+        LEFT JOIN smt_unit su ON su.unit_id = sh.unit_id
+        LEFT JOIN smt_owner_house soh on soh.house_id = sh.house_id
+        <where>
+            <if test="ownerId != null "> and soh.owner_id = #{ownerId}</if>
+        </where>
+    </select>
+</mapper>

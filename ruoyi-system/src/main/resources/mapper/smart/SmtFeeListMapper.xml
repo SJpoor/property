@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.smart.mapper.SmtFeeListMapper">
+    
+    <resultMap type="SmtFeeList" id="SmtFeeListResult">
+        <result property="feeListId"    column="fee_list_id"    />
+        <result property="feeId"    column="fee_id"    />
+        <result property="ownerId"    column="owner_id"    />
+        <result property="title"    column="title"    />
+        <result property="amount"    column="amount"    />
+        <result property="orderNum"    column="order_num"    />
+        <result property="payStatus"    column="pay_status"    />
+        <result property="status"    column="status"    />
+        <result property="remark"    column="remark"    />
+        <result property="delFlag"    column="del_flag"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateBy"    column="update_by"    />
+        <result property="updateTime"    column="update_time"    />
+        <association property="fee" javaType="SmtFee">
+            <result property="feeId"    column="fee_id"    />
+            <result property="feeType"    column="fee_type"    />
+            <result property="feeName"    column="fee_name"    />
+            <result property="unit"    column="unit"    />
+            <result property="num"    column="num"    />
+            <result property="price"    column="price"    />
+        </association>
+        <association property="owner" javaType="SysUser">
+            <id     property="userId"       column="user_id"      />
+            <result property="userName"     column="user_name"    />
+            <result property="nickName"     column="nick_name"    />
+            <result property="email"        column="email"        />
+            <result property="phonenumber"  column="phonenumber"  />
+            <result property="sex"          column="sex"          />
+        </association>
+    </resultMap>
+
+    <sql id="selectSmtFeeListVo">
+        select fee_list_id, fee_id, owner_id, title, amount, order_num, pay_status, status, remark, del_flag, create_by, create_time, update_by, update_time from smt_fee_list
+    </sql>
+
+    <select id="selectSmtFeeListList" parameterType="SmtFeeList" resultMap="SmtFeeListResult">
+       <!-- <include refid="selectSmtFeeListVo"/>-->
+        select
+            sfl.fee_list_id,
+            sfl.fee_id,
+            sfl.owner_id,
+            sfl.title,
+            sfl.amount,
+            sfl.order_num,
+            sfl.pay_status,
+            sfl.status,
+            sfl.remark,
+            sfl.del_flag,
+            sfl.create_by,
+            sfl.create_time,
+            sfl.update_by,
+            sfl.update_time,
+            sf.fee_id,
+            sf.fee_type,
+            sf.fee_name,
+            sf.num,
+            sf.price,
+            su.user_id,
+            su.user_name,
+            su.nick_name,
+            su.sex,
+            su.email,
+            su.phonenumber
+        from smt_fee_list sfl
+        left join smt_fee sf on sf.fee_id = sfl.fee_id
+        left join sys_user su on su.user_id = sfl.owner_id
+        <where>  
+            <if test="feeId != null "> and sfl.fee_id = #{feeId}</if>
+            <if test="ownerId != null "> and sfl.owner_id = #{ownerId}</if>
+            <if test="title != null  and title != ''"> and sfl.title = #{title}</if>
+            <if test="amount != null "> and sfl.amount = #{amount}</if>
+            <if test="orderNum != null "> and sfl.order_num = #{orderNum}</if>
+            <if test="payStatus != null  and payStatus != ''"> and sfl.pay_status = #{payStatus}</if>
+            <if test="status != null  and status != ''"> and sfl.status = #{status}</if>
+        </where>
+    </select>
+    
+    <select id="selectSmtFeeListByFeeListId" parameterType="Long" resultMap="SmtFeeListResult">
+        <include refid="selectSmtFeeListVo"/>
+        where fee_list_id = #{feeListId}
+    </select>
+
+    <insert id="insertSmtFeeList" parameterType="SmtFeeList" useGeneratedKeys="true" keyProperty="feeListId">
+        insert into smt_fee_list
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="feeId != null">fee_id,</if>
+            <if test="ownerId != null">owner_id,</if>
+            <if test="title != null">title,</if>
+            <if test="amount != null">amount,</if>
+            <if test="orderNum != null">order_num,</if>
+            <if test="payStatus != null">pay_status,</if>
+            <if test="status != null">status,</if>
+            <if test="remark != null">remark,</if>
+            <if test="delFlag != null">del_flag,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateBy != null">update_by,</if>
+            <if test="updateTime != null">update_time,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="feeId != null">#{feeId},</if>
+            <if test="ownerId != null">#{ownerId},</if>
+            <if test="title != null">#{title},</if>
+            <if test="amount != null">#{amount},</if>
+            <if test="orderNum != null">#{orderNum},</if>
+            <if test="payStatus != null">#{payStatus},</if>
+            <if test="status != null">#{status},</if>
+            <if test="remark != null">#{remark},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateBy != null">#{updateBy},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSmtFeeList" parameterType="SmtFeeList">
+        update smt_fee_list
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="feeId != null">fee_id = #{feeId},</if>
+            <if test="ownerId != null">owner_id = #{ownerId},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="orderNum != null">order_num = #{orderNum},</if>
+            <if test="payStatus != null">pay_status = #{payStatus},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </trim>
+        where fee_list_id = #{feeListId}
+    </update>
+
+    <delete id="deleteSmtFeeListByFeeListId" parameterType="Long">
+        delete from smt_fee_list where fee_list_id = #{feeListId}
+    </delete>
+
+    <delete id="deleteSmtFeeListByFeeListIds" parameterType="String">
+        delete from smt_fee_list where fee_list_id in 
+        <foreach item="feeListId" collection="array" open="(" separator="," close=")">
+            #{feeListId}
+        </foreach>
+    </delete>
+</mapper>
