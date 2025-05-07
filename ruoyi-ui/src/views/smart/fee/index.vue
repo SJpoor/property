@@ -1,4 +1,5 @@
 <template>
+<!--  费用类型管理-->
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="类型" prop="status">
@@ -95,11 +96,11 @@
       <el-table-column label="数量" align="center" prop="num" />
       <el-table-column label="单价(元)" align="center" prop="price" />
       <!-- <el-table-column label="显示顺序" align="center" prop="orderNum" /> -->
-      <el-table-column label="状态" align="center" prop="status" >
+<!--      <el-table-column label="状态" align="center" prop="status" >
         <template slot-scope="scope">
           <el-switch v-model="scope.row.status" active-value="0" inactive-value="1" @change="handleStatusChange(scope.row)"></el-switch>
         </template>
-      </el-table-column>
+      </el-table-column>-->
       <el-table-column label="备注" align="center" prop="remark" :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
