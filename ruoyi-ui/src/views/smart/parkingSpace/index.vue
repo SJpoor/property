@@ -1,4 +1,5 @@
 <template>
+<!--  车位管理-->
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="停车场" prop="parkingLotId">

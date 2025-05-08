@@ -105,6 +105,7 @@ public class CommonController
     /**
      * 通用上传请求（单个）
      */
+//    后端接受上传图片
     @PostMapping("/uploadPlate")
     public AjaxResult uploadPlate(MultipartFile file) throws Exception
     {
@@ -116,6 +117,8 @@ public class CommonController
             String fileName = FileUploadUtils.upload(filePath, file);
             // 绝对路径
             String absoultePath = filePath+fileName.replace(Constants.RESOURCE_PREFIX+"/upload", "");
+
+//            调用车牌识别工具类处理图片
             String imgText = PlateDetectionUtil.detection(absoultePath);
             SysAttr attr = new SysAttr();
             attr.setAttrName(file.getOriginalFilename());

@@ -31,12 +31,14 @@ public class PlateDetectionUtil {
     }
     final static String PLATE_NAME= "#京沪津渝冀晋蒙辽吉黑苏浙皖闽赣鲁豫鄂湘粤桂琼川贵云藏陕甘青宁新学警港澳挂使领民航危0123456789ABCDEFGHJKLMNPQRSTUVWXYZ险品";
 
-    //TODO 车牌检测模型 注意必须替换成自己本地绝对路径
+    //TODO 车牌检测模型 ：本地绝对路径
     private static final String model_path1 = "E:\\毕设\\3.10car\\RuoYi-Vue\\model\\yolo5_plate_detect.onnx";
 
-    // TODO 车牌识别模型 注意必须替换成自己本地绝对路径
+    // TODO 车牌识别模型 :本地绝对路径
     private static final String model_path2 = "E:\\毕设\\3.10car\\RuoYi-Vue\\model\\yolo5_plate_rec_color.onnx";
 
+
+    //识别
     public static String detection(String imageFilePath) throws OrtException {
         float confThreshold = 0.35F;
 
@@ -65,12 +67,13 @@ public class PlateDetectionUtil {
         OrtEnvironment environment2 = OrtEnvironment.getEnvironment();
         OrtSession session2 = environment2.createSession(model_path2, sessionOptions);
 
-        // 加载标签及颜色
-
         System.out.println(imageFilePath);
+
         // 读取 image
         Mat img = Imgcodecs.imread(imageFilePath);
         Mat image = img.clone();
+
+        // 将图片转换为RGB格式
         Imgproc.cvtColor(image, image, Imgproc.COLOR_BGR2RGB);
 
         // 在这里先定义下框的粗细、字的大小、字的类型、字的颜色(按比例设置大小粗细比较好一些)
@@ -177,6 +180,7 @@ public class PlateDetectionUtil {
         bbox[3] = y + h * 0.5f;
     }
 
+    //去除重叠的冗余框
     public static List<float[]> nonMaxSuppression(List<float[]> bboxes, float iouThreshold) {
 
         List<float[]> bestBboxes = new ArrayList<>();
@@ -193,7 +197,7 @@ public class PlateDetectionUtil {
     }
 
 
-    // 单纯为了显示中文演示使用，实际项目中用不到这个
+    // 测试
     public static BufferedImage matToBufferedImage(Mat mat) {
         int type = BufferedImage.TYPE_BYTE_GRAY;
         if (mat.channels() > 1) {
@@ -208,6 +212,7 @@ public class PlateDetectionUtil {
         return image;
     }
 
+    //找出每个位置上得分最高的索引，用于车牌字符识别
     private static int[] maxScoreIndex(float[][] result){
         int[] indexes = new int[result.length];
         for (int i = 0; i < result.length; i++){
@@ -265,9 +270,11 @@ public class PlateDetectionUtil {
         return output;
     }
 
+    //解码车牌
     private static String decodePlate(int[] indexes){
         int pre = 0;
         StringBuffer sb = new StringBuffer();
+        // 解码每个位置的字符，跳过重复字符和空字符
         for(int index : indexes){
             if(index != 0 && pre != index){
                 sb.append(PLATE_NAME.charAt(index));

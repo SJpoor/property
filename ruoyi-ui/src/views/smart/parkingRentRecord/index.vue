@@ -1,4 +1,5 @@
 <template>
+<!--  停用，使用parkingRent-->
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="收费id" prop="feeId">
