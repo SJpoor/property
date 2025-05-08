@@ -20,7 +20,7 @@
           @keyup.enter.native="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="驶入时间" prop="driveInTime">
+<!--      <el-form-item label="驶入时间" prop="driveInTime">
         <el-date-picker clearable
           v-model="queryParams.driveInTime"
           type="date"
@@ -35,7 +35,7 @@
           value-format="yyyy-MM-dd"
           placeholder="请选择驶出时间">
         </el-date-picker>
-      </el-form-item>
+      </el-form-item>-->
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>

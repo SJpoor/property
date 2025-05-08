@@ -111,11 +111,11 @@
       <!-- <el-table-column label="表显" align="center" prop="display" /> -->
       <el-table-column label="租金" align="center" prop="rentAmount" />
       <!-- <el-table-column label="显示顺序" align="center" prop="orderNum" /> -->
-      <el-table-column label="状态" align="center" prop="status" >
+<!--      <el-table-column label="状态" align="center" prop="status" >
         <template slot-scope="scope">
           <el-switch v-model="scope.row.status" active-value="0" inactive-value="1" @change="handleStatusChange(scope.row)"></el-switch>
         </template>
-      </el-table-column>
+      </el-table-column>-->
       <el-table-column label="备注" align="center" prop="remark" :show-overflow-tooltip="true"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width" width="200">
         <template slot-scope="scope">
